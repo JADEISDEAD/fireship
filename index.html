@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Anonymous Chat</title>
+    <title>fireship</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,7 +15,7 @@
             overflow: hidden;
         }
 
-        /* Main Chat Area (Now Takes Full Width) */
+        
         .chat-container {
             flex-grow: 1;
             background-color: #36393f;
@@ -106,7 +106,7 @@
     <script>
         const pusherKey = '80f8e381bf3d97768208';
         const pusherCluster = 'us3';
-        const channelName = 'general-chat'; // Everyone in this "room" will see messages
+        const channelName = 'general-chat';
 
         const pusher = new Pusher(pusherKey, {
             cluster: pusherCluster
@@ -129,7 +129,7 @@
 
             if (message) {
                 try {
-                    const response = await fetch('/api/send', { // This talks to our Vercel function
+                    const response = await fetch('/api/send', { 
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -138,7 +138,7 @@
                     });
 
                     if (response.ok) {
-                        messageInput.value = ''; // Clear the input
+                        messageInput.value = ''; 
                     } else {
                         console.error('Failed to send message.');
                     }
@@ -148,7 +148,7 @@
             }
         }
 
-        // Basic "typing" indicator (purely visual for this example)
+      
         const messageInput = document.getElementById('message-input');
         messageInput.addEventListener('focus', () => {
             messageInput.placeholder = 'Message #general';
