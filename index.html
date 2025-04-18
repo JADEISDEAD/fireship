@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anonymous Chat</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #36393f;
+            color: #dcddde;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Main Chat Area (Now Takes Full Width) */
+        .chat-container {
+            flex-grow: 1;
+            background-color: #36393f;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #message-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 10px;
+        }
+
+        .message {
+            background-color: #40444b;
+            color: #dcddde;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            word-break: break-word;
+        }
+
+        .message strong {
+            color: #99aab5;
+            margin-right: 5px;
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #2c2f33;
+        }
+
+        #message-input {
+            flex-grow: 1;
+            background-color: #40444b;
+            color: #dcddde;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+
+        #message-input:focus {
+            outline: none;
+        }
+
+        button {
+            background-color: #7289da;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #677bc4;
+        }
+
+        h1 {
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Fireship</h1>
+        <div id="message-container">
+            </div>
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Message #general">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+    <script>
+        const pusherKey = '80f8e381bf3d97768208';
+        const pusherCluster = 'us3';
+        const channelName = 'general-chat'; // Everyone in this "room" will see messages
+
+        const pusher = new Pusher(pusherKey, {
+            cluster: pusherCluster
+        });
+
+        const channel = pusher.subscribe(channelName);
+
+        channel.bind('new-message', function(data) {
+            const messageContainer = document.getElementById('message-container');
+            const newMessageDiv = document.createElement('div');
+            newMessageDiv.classList.add('message');
+            newMessageDiv.innerHTML = `<strong>${data.username}:</strong> ${data.text}`;
+            messageContainer.appendChild(newMessageDiv);
+            messageContainer.scrollTop = messageContainer.scrollHeight; // Scroll to bottom
+        });
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+
+            if (message) {
+                try {
+                    const response = await fetch('/api/send', { // This talks to our Vercel function
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: message }),
+                    });
+
+                    if (response.ok) {
+                        messageInput.value = ''; // Clear the input
+                    } else {
+                        console.error('Failed to send message.');
+                    }
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
+            }
+        }
+
+        // Basic "typing" indicator (purely visual for this example)
+        const messageInput = document.getElementById('message-input');
+        messageInput.addEventListener('focus', () => {
+            messageInput.placeholder = 'Message #general';
+        });
+        messageInput.addEventListener('blur', () => {
+            messageInput.placeholder = 'Message #general';
+        });
+    </script>
+</body>
+</html>
