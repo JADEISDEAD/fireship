@@ -9,7 +9,7 @@ const pusher = new Pusher({
     useTLS: true
 });
 
-export default async (req, res) => {
+export default async function handler(req, res) {
     if (req.method === 'POST') {
         const { message } = req.body;
         const username = 'Anonymous'; // You can implement a way to generate pseudo-anonymous names if desired
@@ -29,8 +29,11 @@ export default async (req, res) => {
         } else {
             res.status(400).json({ error: 'Message is empty or invalid' });
         }
+    } else if (req.method === 'GET') {
+        // Handle GET requests here
+        res.status(200).send('hello from vercel');
     } else {
-        res.setHeader('Allow', ['POST']);
+        res.setHeader('Allow', ['POST', 'GET']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
-};
+}
